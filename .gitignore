@@ -12,6 +12,7 @@
 #
 .*
 !.config
+!built-drivers
 *.a
 *.asn1.[ch]
 *.bin

@@ -15,6 +15,7 @@ RUN apt-get update && apt-get install -y \
         bc \
         libelf-dev \
         libncurses-dev \
+        kmod \
     && rm -rf /var/lib/apt/lists/* ;
 
 # VOLUME /boot /boot

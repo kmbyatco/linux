@@ -6,6 +6,7 @@ services:
       context: .
     volumes:
       - .:/linux
-      - /boot:/boot
-      - ./staging:/staging
-    command: tail -f /dev/null
+      - /boot:/boot:ro
+      - ./built-drivers:/built-drivers
+      - /lib/modules/5.11.0-37-generic:/lib/modules/5.11.0-37-generic:ro
+    # entrypoint: tail -f /dev/null

@@ -8,4 +8,6 @@ echo "Detected CONFIG_LOCALVERSION \"$CONFIG_LOCALVERSION\""
 
 sed -i 's/^CONFIG_LOCALVERSION=.*$/CONFIG_LOCALVERSION=$CONFIG_LOCALVERSION' .config
 make modules_prepare
-make -j4 M=drivers/tw686x rebuilt_tw686x
+make -j4 M=drivers/virtio modules
+
+make M=drivers/virtio INSTALL_MOD_PATH=/tmp/staging modules_install

@@ -12,6 +12,9 @@ RUN apt-get update && apt-get install -y \
         flex \
         bison \
         libssl-dev \
+        bc \
+        libelf-dev \
+        libncurses-dev \
     && rm -rf /var/lib/apt/lists/* ;
 
 # VOLUME /boot /boot

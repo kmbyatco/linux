@@ -225,7 +225,7 @@ reset_channels:
 		spin_unlock_irqrestore(&dev->lock, flags);
 		// dev_dbg(&dev->pci_dev->dev, "Done with spin_unlock_irqrestore\n");
 		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(100));
+			  jiffies + msecs_to_jiffies(300));
 		// dev_dbg(&dev->pci_dev->dev, "Done with mod_timer\n");
 	}
 

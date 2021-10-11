@@ -1,3 +1,5 @@
+#define DEBUG
+
 // SPDX-License-Identifier: GPL-2.0-only
 /*
  * Copyright (C) 2015 VanguardiaSur - www.vanguardiasur.com.ar
@@ -186,7 +188,7 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 
 	spin_lock_irqsave(&dev->lock, flags);
 	dma_en = reg_read(dev, DMA_CHANNEL_ENABLE);
-	spin_unlock_irqrestore(&dev->lock, flags);
+	spin_unlock_irqrestore(&dev->lock, flags);;
 
 	video_en = dma_en & 0xff;
 	fifo_signal = ~(fifo_status & 0xff) & video_en;
@@ -212,10 +214,12 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 reset_channels:
 	if (reset_ch) {
 		spin_lock_irqsave(&dev->lock, flags);
+		mod_timer(&dev->dma_delay_timer,
+			  jiffies + msecs_to_jiffies(500));
 		tw686x_reset_channels(dev, reset_ch);
 		spin_unlock_irqrestore(&dev->lock, flags);
 		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(100));
+			  jiffies + msecs_to_jiffies(500));
 	}
 
 	return IRQ_HANDLED;

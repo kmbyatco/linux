@@ -1129,8 +1129,8 @@ void tw686x_video_irq(struct tw686x_dev *dev, unsigned long requests,
 		if (vc->pb != pb) {
 			/* Mark this channel for reset */
 			v4l2_printk(KERN_DEBUG, &dev->v4l2_dev,
-				    "video%d: unexpected p-b buffer!\n",
-				    vc->num);
+				    "video%d: unexpected p-b buffer, vc->pb: %d, pb: %d, pb_status: %d, BIT(ch): %lu!\n",
+				    vc->num, vc->pb, pb, pb_status, BIT(ch));
 			*reset_ch |= BIT(ch);
 			vc->pb = 0;
 			continue;

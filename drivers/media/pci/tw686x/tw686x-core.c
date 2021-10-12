@@ -220,13 +220,17 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 reset_channels:
 	if (reset_ch) {
 		spin_lock_irqsave(&dev->lock, flags);
+		mod_timer(&dev->dma_delay_timer,
+			  jiffies + msecs_to_jiffies(200));
 		tw686x_reset_channels(dev, reset_ch);
 		// dev_dbg(&dev->pci_dev->dev, "Done with tw686x_reset_channels\n");
 		spin_unlock_irqrestore(&dev->lock, flags);
+		mod_timer(&dev->dma_delay_timer,
+			  jiffies + msecs_to_jiffies(200));
 		// dev_dbg(&dev->pci_dev->dev, "Done with spin_unlock_irqrestore\n");
 		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(100));
-		dev_dbg(&dev->pci_dev->dev, "Done with mod_timer\n");
+			  jiffies + msecs_to_jiffies(200));
+		// dev_dbg(&dev->pci_dev->dev, "Done with mod_timer\n");
 	}
 
 	return IRQ_HANDLED;

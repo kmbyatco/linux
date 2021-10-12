@@ -173,13 +173,10 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 	unsigned long flags;
 
 	int_status = reg_read(dev, INT_STATUS); /* cleared on read */
-	// dev_dbg(&dev->pci_dev->dev, "getting int_status: %d\n", int_status);
 	fifo_status = reg_read(dev, VIDEO_FIFO_STATUS);
-	// dev_dbg(&dev->pci_dev->dev, "getting fifo_status: %d\n", fifo_status);
 
 	/* INT_STATUS does not include FIFO_STATUS errors! */
 	if (!int_status && !TW686X_FIFO_ERROR(fifo_status))
-		// dev_dbg(&dev->pci_dev->dev, "!int_status and !fifo_status, returning with %d\n", IRQ_NONE);
 		return IRQ_NONE;
 
 	if (int_status & INT_STATUS_DMA_TOUT) {
@@ -190,11 +187,8 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 	}
 
 	spin_lock_irqsave(&dev->lock, flags);
-	// dev_dbg(&dev->pci_dev->dev, "Done with spin_lock_irqsave\n");
 	dma_en = reg_read(dev, DMA_CHANNEL_ENABLE);
-	// dev_dbg(&dev->pci_dev->dev, "getting int_status: %d\n", dma_en);
-	spin_unlock_irqrestore(&dev->lock, flags);
-	// dev_dbg(&dev->pci_dev->dev, "Done with spin_unlock_irqrestore\n");
+	spin_unlock_irqrestore(&dev->lock, flags);;
 
 	video_en = dma_en & 0xff;
 	fifo_signal = ~(fifo_status & 0xff) & video_en;
@@ -221,16 +215,11 @@ reset_channels:
 	if (reset_ch) {
 		spin_lock_irqsave(&dev->lock, flags);
 		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(200));
+			  jiffies + msecs_to_jiffies(500));
 		tw686x_reset_channels(dev, reset_ch);
-		// dev_dbg(&dev->pci_dev->dev, "Done with tw686x_reset_channels\n");
 		spin_unlock_irqrestore(&dev->lock, flags);
 		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(200));
-		// dev_dbg(&dev->pci_dev->dev, "Done with spin_unlock_irqrestore\n");
-		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(200));
-		// dev_dbg(&dev->pci_dev->dev, "Done with mod_timer\n");
+			  jiffies + msecs_to_jiffies(500));
 	}
 
 	return IRQ_HANDLED;

@@ -52,7 +52,7 @@
  * users wanting fine-grain control over the interrupt rate should
  * determine the desired value through testing.
  */
-static u32 dma_interval = 0x00098968;
+static u32 dma_interval = 0x00018968;
 module_param(dma_interval, int, 0444);
 MODULE_PARM_DESC(dma_interval, "Minimum time span for DMA interrupting host");
 
@@ -160,8 +160,14 @@ static void tw686x_reset_channels(struct tw686x_dev *dev, unsigned int ch_mask)
 	if ((dma_en & ~ch_mask) == 0) {
 		dev_dbg(&dev->pci_dev->dev, "reset: stopping DMA\n");
 		dma_cmd &= ~DMA_CMD_ENABLE;
+		dev_dbg(&dev->pci_dev->dev, "dma_cmd: %#010x\n", dma_cmd);
+		mod_timer(&dev->dma_delay_timer,
+			  jiffies + msecs_to_jiffies(300));
 	}
 	reg_write(dev, DMA_CMD, dma_cmd & ~ch_mask);
+	dev_dbg(&dev->pci_dev->dev, "~ch_mask: %#010x\n", ~ch_mask);
+		mod_timer(&dev->dma_delay_timer,
+			  jiffies + msecs_to_jiffies(300));
 }
 
 static irqreturn_t tw686x_irq(int irq, void *dev_id)
@@ -183,6 +189,9 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 		dev_dbg(&dev->pci_dev->dev,
 			"DMA timeout. Resetting DMA for all channels\n");
 		reset_ch = ~0;
+		dev_dbg(&dev->pci_dev->dev, "reset_ch: %#010x\n", reset_ch);
+		mod_timer(&dev->dma_delay_timer,
+			  jiffies + msecs_to_jiffies(300));
 		goto reset_channels;
 	}
 
@@ -202,7 +211,8 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 	pb_status = reg_read(dev, PB_STATUS);
 
 	/* Coalesce video frame/error events */
-	video_requests = (int_status & video_en) | fifo_errors;
+	// video_requests = (int_status & video_en) | fifo_errors;
+	video_requests = (int_status & video_en);
 	audio_requests = (int_status & dma_en) >> 8;
 
 	if (video_requests)
@@ -214,12 +224,10 @@ static irqreturn_t tw686x_irq(int irq, void *dev_id)
 reset_channels:
 	if (reset_ch) {
 		spin_lock_irqsave(&dev->lock, flags);
-		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(500));
 		tw686x_reset_channels(dev, reset_ch);
 		spin_unlock_irqrestore(&dev->lock, flags);
 		mod_timer(&dev->dma_delay_timer,
-			  jiffies + msecs_to_jiffies(500));
+			  jiffies + msecs_to_jiffies(100));
 	}
 
 	return IRQ_HANDLED;
